@@ -1,0 +1,16 @@
+{
+    "contents" : "\n# This is the server logic for a Shiny web application.\n# You can find out more about building applications with Shiny here:\n#\n# http://shiny.rstudio.com\n#\n\nlibrary(shiny)\nlibrary(RMySQL)\nlibrary(rCharts)\n\nshinyServer(function(input, output) {\n  con=dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='54.69.26.113', port=3306)\n  \n  \n \ncpi_data<-dbGetQuery(con,\"\nselect max(inquiries) inquiries, max(cost) cost, max(referrals) referrals, sum(if(lower(status)='randomized',1,0)) as rands,\nb.type,a.site_name, if(sum(if(lower(status)='randomized',1,0))>0,max(cost)/sum(if(lower(status)='randomized',1,0)),-999) as cprand,\nmax(cost)/max(inquiries) as cpi, max(cost)/max(referrals)as cpref\nfrom gidb.endo1 a \njoin gidb.dim_media_type b on a.media_type = b.detail\njoin\n(select sum(inquiries) inquiries, sum(cost) cost, sum(referrals) referrals, type,site_id from gidb.media where start_date>'2014-01-01'\ngroup by type,site_id) c\non b.type = c.type and a.site_id = c.site_id\ngroup by a.site_name,b.type\n\")\n\ndata_lim<-reactive({\n  subset(cpi_data,cpi_data$type %in% c(input$types))\n})\noutput$heatmap<-renderChart({\np <- rPlot(type ~ site_name, data = data_lim(), color=paste(\"'\",input$measure,\"'\",sep=\"\"),\n           type = 'tile'\n              ,tooltip = paste(\"#!function(item){ return item.site_name + item.type + ' CP: ' + item.\",input$measure,\" +' Count: ' + item.\",\n              switch(input$measure,'cpi'='inquiries','cpirand'='rands','cpref'='referrals'),\"}!#\",sep=\"\"))\np$guides(\"{color: {scale: {type: gradient, lower: white, upper: steelblue}}}\")\np$addParams(width = 1000, height = 600, dom = 'heatmap',title =\n\tpaste(\"Cost Per \",switch(input$measure,'cpi'='Inquiry','cpirand'='Randomization','cpref'='Referral')))\nreturn(p)\n})\n\n})\n\n\n\n",
+    "created" : 1415395416359.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3228645443",
+    "id" : "94A4727",
+    "lastKnownWriteTime" : 1415405411,
+    "path" : "~/Documents/GIDyna/go_heat/server.R",
+    "project_path" : "server.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}

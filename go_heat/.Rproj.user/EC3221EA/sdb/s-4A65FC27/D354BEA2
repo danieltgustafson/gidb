@@ -1,0 +1,22 @@
+{
+    "contents" : "",
+    "created" : 1415405073712.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "D354BEA2",
+    "lastKnownWriteTime" : 4454006272,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "caption" : "cpi_data",
+        "contentUrl" : "content?title=cpi_data&file=2e372bc905ff459facf4133165b92b0f.htm",
+        "displayedObservations" : 104,
+        "displayedVariables" : 9,
+        "totalObservations" : 104,
+        "variables" : 9
+    },
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

@@ -1,0 +1,16 @@
+{
+    "contents" : "\n# This is the user-interface definition of a Shiny web application.\n# You can find out more about building applications with Shiny here:\n#\n# http://shiny.rstudio.com\n#\n\nlibrary(shiny)\nlibrary(rCharts)\n\nshinyUI(fluidPage(\n\n  # Application title\n  titlePanel(\"Old Faithful Geyser Data\"),\n\n  # Sidebar with a slider input for number of bins\n  sidebarLayout(\n    sidebarPanel(\n      checkboxGroupInput('types','Select media types',\n                         choices=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'),\n                         selected=c('Facebook','TV','Radio','Print','Google/YMSN','Transit')),\n    \n    radioButtons('measure','Select measurement',list(\"CPI\"='cpi',\"CPRef\"='cpref',\"CPRand\"='cprand'))\n    ),\n\n\n    # Show a plot of the generated distribution\n    mainPanel(\n      showOutput(\"heatmap\",'polycharts')\n    )\n  )\n))\n",
+    "created" : 1415395416229.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1255329429",
+    "id" : "F1B1DF3",
+    "lastKnownWriteTime" : 1415405119,
+    "path" : "~/Documents/GIDyna/go_heat/ui.R",
+    "project_path" : "ui.R",
+    "properties" : {
+    },
+    "source_on_save" : false,
+    "type" : "r_source"
+}
