@@ -11,7 +11,7 @@ library(rCharts)
 shinyUI(fluidPage(
 
   # Application title
-  titlePanel("Old Faithful Geyser Data"),
+  titlePanel("Cost Metrics by Site and Type"),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
