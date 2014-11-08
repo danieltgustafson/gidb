@@ -20,7 +20,8 @@ shinyUI(fluidPage(
                          choices=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'),
                          selected=c('Facebook','TV','Radio','Print','Google/YMSN','Transit')),
     
-    radioButtons('measure','Select measurement',list("CPI"='cpi',"CPRef"='cpref',"CPRand"='cprand'))
+    radioButtons('measure','Select measurement',list("CPI"='cpi',"CPRef"='cpref',"CPRand"='cprand')),
+            downloadButton("downloadData","Download")
     ),
 
 

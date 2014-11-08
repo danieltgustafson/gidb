@@ -16,7 +16,7 @@ shinyServer(function(input, output) {
  
 cpi_data<-dbGetQuery(con,"
 select max(inquiries) inquiries, max(cost) cost, max(referrals) referrals, sum(if(lower(status)='randomized',1,0)) as rands,
-b.type,a.site_name, if(sum(if(lower(status)='randomized',1,0))>0,max(cost)/sum(if(lower(status)='randomized',1,0)),-999) as cprand,
+b.type,a.site_name, sum(if(lower(status)='randomized',1,0))>0,max(cost)/sum(if(lower(status)='randomized',1,0)) as cprand,
 max(cost)/max(inquiries) as cpi, max(cost)/max(referrals)as cpref
 from gidb.endo1 a 
 join gidb.dim_media_type b on a.media_type = b.detail
@@ -28,19 +28,27 @@ group by a.site_name,b.type
 ")
 
 data_lim<-reactive({
-  subset(cpi_data,cpi_data$type %in% c(input$types))
+  a<-subset(cpi_data,cpi_data$type %in% c(input$types))
+  b<-a[!is.na(a[,input$measure]),]
+  	return(b)
+
 })
 output$heatmap<-renderChart({
 p <- rPlot(type ~ site_name, data = data_lim(), color=paste("'",input$measure,"'",sep=""),
            type = 'tile'
               ,tooltip = paste("#!function(item){ return item.site_name + item.type + ' CP: ' + item.",input$measure," +' Count: ' + item.",
-              switch(input$measure,'cpi'='inquiries','cpirand'='rands','cpref'='referrals'),"}!#",sep=""))
+              switch(input$measure,'cpi'='inquiries','cprand'='rands','cpref'='referrals'),"}!#",sep=""))
 p$guides("{color: {scale: {type: gradient, lower: white, upper: steelblue}}}")
 p$addParams(width = 1000, height = 600, dom = 'heatmap',title =
-	paste("Cost Per ",switch(input$measure,'cpi'='Inquiry','cpirand'='Randomization','cpref'='Referral')))
+	paste("Cost Per ",switch(input$measure,'cpi'='Inquiry','cprand'='Randomization','cpref'='Referral')))
 return(p)
 })
-
+output$downloadData <- downloadHandler(
+    filename = function() { paste('cpi_data', '.csv', sep='') },
+    content = function(file) {
+      write.csv(data_lim(), file)
+  }    
+)
 })
 
 
