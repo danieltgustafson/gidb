@@ -28,11 +28,18 @@ group by a.site_name,b.type
 ")
 
 data_lim<-reactive({
-  a<-subset(cpi_data,cpi_data$type %in% c(input$types))
-  b<-a[!is.na(a[,input$measure]),]
+
+if(input$best){
+  	a<-cpi_data[cpi_data[,input$measure,]==ave(cpi_data[,input$measure,],cpi_data$site_name,FUN=min),]
+}
+else{
+  	a<-subset(cpi_data,cpi_data$type %in% c(input$types))
+  }
+  	b<-a[!is.na(a[,input$measure]),]
   	return(b)
 
 })
+
 output$heatmap<-renderChart({
 p <- rPlot(type ~ site_name, data = data_lim(), color=paste("'",input$measure,"'",sep=""),
            type = 'tile'

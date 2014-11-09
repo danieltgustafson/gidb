@@ -27,6 +27,7 @@ shinyUI(fluidPage(
 
     # Show a plot of the generated distribution
     mainPanel(
+      checkboxInput('best','Check to show only best performer'),
       showOutput("heatmap",'polycharts')
     )
   )
