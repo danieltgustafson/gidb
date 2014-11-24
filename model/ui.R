@@ -31,7 +31,7 @@ shinyUI(fluidPage(
       showOutput('box','highcharts'),
       conditionalPanel('!is.na(output.bar)',
         checkboxInput('inqs','Check to show predicted inquiries')
-      showOutput("bar","nvd3"),
+      showOutput("bar","nvd3")
             )
 
     )
