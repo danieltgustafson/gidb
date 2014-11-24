@@ -8,6 +8,7 @@
 library(shiny)
 library(RMySQL)
 library(rCharts)
+library(plyr)
 
 shinyServer(function(input, output) {
   con=dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='54.69.26.113', port=3306)
@@ -30,7 +31,7 @@ group by a.site_name,b.type
 data_lim<-reactive({
 
 if(input$best){
-  	a<-cpi_data[cpi_data[,input$measure,]==ave(cpi_data[,input$measure,],cpi_data$site_name,FUN=min),]
+  	a<-ddply(cpi_data, .(site_name), function(x) x[which.min(x[,input$measure]),])
 }
 else{
   	a<-subset(cpi_data,cpi_data$type %in% c(input$types))
