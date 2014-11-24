@@ -136,7 +136,7 @@ data<-reactive({
 		data<-melt(data[,c('type','inq_low','inq_exp','inq_high')],id='type')
 	}
 	else{
-		data<-melt(inq_output()[-(2:3)][-(5)])
+		data<-melt(inq_output()[-(2:3)][-(5)],id='type')
 	}
 		data$value<-round(data$value,0)
 	return(data)
@@ -144,6 +144,7 @@ data<-reactive({
 
 output$bar<-renderChart({
 		a<-nPlot(value~type,group='variable',data=data(),type='multiBarChart',dom='bar')
+		a$set(width = 1000, height = 500)
 	return(a)
 	
 })
@@ -155,6 +156,7 @@ output$box<-renderChart({
 	h2$yAxis(title = list(text = "Inq. to Randomization"),min=0)
 	h2$chart(type = "boxplot")
 	h2$addParams(dom='box')
+	h2$set(width = 1000, height = 600)
 return(h2)
 })
 })

@@ -18,7 +18,7 @@ shinyUI(fluidPage(
       sliderInput('spend_ra',"Enter Radio Spend",min=0,max=100000,value=1000,ticks=TRUE,step=5000),
       sliderInput('spend_pr',"Enter Print Spend",min=0,max=100000,value=1000,ticks=TRUE,step=5000),
       dateInput('max_date',"Enter max model date"),
-      actionButton('get','Submit'),
+
       #checkboxInput('site_check',"Check for statistically significant site Differences"),
 
         uiOutput('select_site')
