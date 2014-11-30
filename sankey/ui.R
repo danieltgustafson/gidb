@@ -19,7 +19,7 @@ shinyUI(fluidPage(
 
     # Show a plot of the generated distribution
     mainPanel(
-      radioButtons('media_group','Select Groups',list("Group Pre-Screen"='group',"Media Types"='types',"Post-Screen"='post')),
+      radioButtons('media_group','Select Groups',list("Group Pre-Screen"='group',"Media Types"='types',"Post-Screen"='post','Full'='full')),
       showOutput("sankey",'d3_sankey')
     )
   )
