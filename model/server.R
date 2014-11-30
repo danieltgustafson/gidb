@@ -28,7 +28,7 @@ time2rand<-reactive({
 cpi_data<-reactive({
 
 	dbGetQuery(getConnection(),paste("
-		select max(inquiries) inquiries, max(cost) cost, max(referrals) referrals, sum(if(lower(status)='randomized',1,0)) as rands,
+		select if(max(inquiries)>0,max(inquiries),NULL) inquiries, max(cost) cost, max(referrals) referrals, sum(if(lower(status)='randomized',1,0)) as rands,
 		b.type,a.site_name, sum(if(lower(status)='randomized',1,0))>0,max(cost)/sum(if(lower(status)='randomized',1,0)) as cprand,
 		max(cost)/max(inquiries) as cpi, max(cost)/max(referrals)as cpref
 		from gidb.endo1 a 
