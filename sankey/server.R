@@ -20,14 +20,14 @@ shinyServer(function(input, output) {
   
  
 data_full<-dbGetQuery(getConnection(),"
-		select type source, case when  a.status = 'Failed Pre-Screen' then dq_reason else 'Post-Screen' end as target, count(distinct patient_id) value from gidb.endo1 a
+		select type source, case when  a.status = 'Failed Pre-Screen' then dq_group else 'Post-Screen' end as target, count(distinct patient_id) value from gidb.endo1 a
 		join gidb.`dim_media_type` b on a.media_type = b.detail
 		left join gidb.`dim_dq_type` c on a.`Pre-Referral DQ` = c.dq_reason and a.status = 'Failed Pre-Screen'
 
 		group by source, target
 
 		union
-		select 'Post-Screen' as source, case when  a.status like 'Excluded%' then dq_reason else 'Site-Screen' end as target, count(distinct patient_id) value from gidb.endo1 a
+		select 'Post-Screen' as source, case when  a.status like 'Excluded%' then dq_group else 'Site-Screen' end as target, count(distinct patient_id) value from gidb.endo1 a
 		join gidb.`dim_media_type` b on a.media_type = b.detail
 		left join gidb.`dim_dq_type` c on a.`Post-Referral DQ` = c.dq_reason
 		where a.status <> 'Failed Pre-Screen'
