@@ -16,19 +16,22 @@ shinyUI(fluidPage(
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
-      checkboxGroupInput('types','Select media types',
-                         choices=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'),
-                         selected=c('Facebook','TV','Radio','Print','Google/YMSN','Transit')),
-    
-    radioButtons('measure','Select measurement',list("CPI"='cpi',"CPRef"='cpref',"CPRand"='cprand')),
-            downloadButton("downloadData","Download")
+      radioButtons('measure','Select measurement',list("CPI"='cpi',"CPRef"='cpref',"CPRand"='cprand')),
+      uiOutput('types'),
+      checkboxInput('selected','Select All'),  
+      
+      downloadButton("downloadData","Download")
     ),
 
 
     # Show a plot of the generated distribution
     mainPanel(
       checkboxInput('best','Check to show only best performer'),
-      showOutput("heatmap",'polycharts')
+      radioButtons('table','Show Table or Graphic?',list("Table"='table',"Graphic"='graphic')),
+      conditionalPanel(condition="input.table=='graphic'",
+        showOutput("heatmap",'polycharts')),
+      conditionalPanel(condition="input.table=='table'",
+        dataTableOutput("table"))
     )
   )
 ))
