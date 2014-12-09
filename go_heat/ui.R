@@ -18,9 +18,9 @@ shinyUI(fluidPage(
     sidebarPanel(
       radioButtons('measure','Select measurement',list("CPI"='cpi',"CPRef"='cpref',"CPRand"='cprand')),
       uiOutput('types'),
-      checkboxInput('selected','Select All'),  
+      checkboxInput('selected','Select All',value=TRUE),  
       
-      downloadLink("downloadData","Download")
+      downloadButton("downloadData","Download")
     ),
 
 
