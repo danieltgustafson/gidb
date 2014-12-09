@@ -10,16 +10,21 @@ library(RMySQL)
 library(rCharts)
 library(plyr)
 
+getConnection <- function(group) {
+
+  if (!exists('.connection', where=.GlobalEnv)) {
+    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='54.69.26.113', port=3306)
+  } else if (class(try(dbGetQuery(.connection, "SELECT 1"))) == "try-error") {
+    dbDisconnect(.connection)
+    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='54.69.26.113', port=3306)
+  }
+
+  return(.connection)
+}
 shinyServer(function(input, output) {
-  
-
-
-con=dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='54.69.26.113', port=3306)
-  
-  
  
 cpi_data<-reactive({
-  dbGetQuery(con,"
+  dbGetQuery(getConnection(),"
       select max(inquiries) inquiries, max(cost) cost, max(referrals) referrals, sum(if(lower(status)='randomized',1,0)) as rands,
       b.type,a.site_name,max(cost)/sum(if(lower(status)='randomized',1,0)) as cprand,
       max(cost)/max(inquiries) as cpi, max(cost)/max(referrals)as cpref
@@ -82,7 +87,7 @@ output$table<-renderDataTable({
 output$downloadData <- downloadHandler(
     filename = function() { paste('cpi_data.csv', sep='') },
     content = function(file) {
-      write.csv(data_lim(), file)
+      write.csv(cpi_data(), file)
   }    
 )
 })
