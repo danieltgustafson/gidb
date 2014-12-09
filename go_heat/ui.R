@@ -20,7 +20,7 @@ shinyUI(fluidPage(
       uiOutput('types'),
       checkboxInput('selected','Select All'),  
       
-      downloadButton("downloadData","Download")
+      downloadLink("downloadData","Download")
     ),
 
 

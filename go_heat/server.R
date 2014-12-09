@@ -80,7 +80,7 @@ output$table<-renderDataTable({
   data_lim()
 })
 output$downloadData <- downloadHandler(
-    filename = function() { paste('cpi_data', '.csv', sep='') },
+    filename = function() { paste('cpi_data.csv', sep='') },
     content = function(file) {
       write.csv(data_lim(), file)
   }    
