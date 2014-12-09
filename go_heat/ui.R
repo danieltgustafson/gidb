@@ -17,9 +17,11 @@ shinyUI(fluidPage(
   sidebarLayout(
     sidebarPanel(
       radioButtons('measure','Select measurement',list("CPI"='cpi',"CPRef"='cpref',"CPRand"='cprand')),
-      uiOutput('types'),
-      checkboxInput('selected','Select All',value=TRUE),  
-      
+      #uiOutput('types'),
+      #checkboxInput('selected','Select All',value=TRUE),  
+      checkboxGroupInput('types','Select media types',
+                         choices=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'),
+                         selected=c('Facebook','TV','Radio','Print','Google/YMSN','Transit')),
       downloadButton("downloadData","Download")
     ),
 

@@ -37,20 +37,20 @@ cpi_data<-reactive({
       group by a.site_name,b.type")
 
 })
-output$types<-renderUI({
+#output$types<-renderUI({
 
-  if(input$selected){
-      checkboxGroupInput('types','Select media types',
-                         choices=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'),
-                         selected=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'))
-  }
-  else
-  {
-        checkboxGroupInput('types','Select media types',
-                         choices=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'))
-      }
+  #if(input$selected){
+   #   checkboxGroupInput('types','Select media types',
+   #                      choices=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'),
+   #                      selected=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'))
+  #}
+ # else
+  #{
+   #     checkboxGroupInput('types','Select media types',
+    #                     choices=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'))
+  #    }
   
-})
+#})
 
 data_lim<-reactive({
 
