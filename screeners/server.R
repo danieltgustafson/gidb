@@ -162,7 +162,7 @@ observe({
 	if(input$submit2==0) return(NULL)
 	isolate({
 		dbSendQuery(getConnection(),"truncate table gidb.screeners")
-		dbSendQuery(getConnection(),"LOAD DATA local infile '/users/dgustafson/documents/gidyna/screeners.csv'  into table gidb.screeners COLUMNS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' lines terminated by '\n' ignore 1 lines")
+		dbSendQuery(getConnection(),"LOAD DATA local infile '/home/ubuntu/screeners.csv'  into table gidb.screeners COLUMNS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' lines terminated by '\n' ignore 1 lines")
 	})
 })
 
@@ -205,7 +205,7 @@ output$send<-renderText({
 	if(input$submit2==0) return(NULL)
 	isolate({
 		dbSendQuery(getConnection(),"truncate table gidb.screener_patients")
-		dbSendQuery(getConnection(),"LOAD DATA local infile '/users/dgustafson/documents/gidyna/screener_patients.csv'  into table gidb.screener_patients COLUMNS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' lines terminated by '\n' ignore 1 lines")
+		dbSendQuery(getConnection(),"LOAD DATA local infile '/home/ubuntu/screener_patients.csv'  into table gidb.screener_patients COLUMNS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\"' lines terminated by '\n' ignore 1 lines")
 	return('SUCCESS!')
 	})
 
