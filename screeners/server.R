@@ -155,7 +155,7 @@ observe({
 	if(input$submit==0) return(NULL)
 	isolate({
 
-	write.csv(data_out(),file='/users/dgustafson/documents/gidyna/screeners.csv',quote=TRUE,row.names=FALSE)
+	write.csv(data_out(),file='/home/ubuntu/screeners.csv',quote=TRUE,row.names=FALSE)
 })
 })
 observe({
@@ -197,7 +197,7 @@ output$preview<-renderDataTable({
 observe({
 	if(input$submit==0) return(NULL)
 	isolate({
-		write.csv(patient_data(),file='/users/dgustafson/documents/gidyna/screener_patients.csv',quote=TRUE,row.names=FALSE)
+		write.csv(patient_data(),file='/home/ubuntu/screener_patients.csv',quote=TRUE,row.names=FALSE)
 })
 })
 
