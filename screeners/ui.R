@@ -6,7 +6,7 @@ library(rCharts)
 shinyUI(fluidPage(
   
   # Application title
-  titlePanel("Overview"),
+  titlePanel("Screeners"),
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
@@ -15,7 +15,7 @@ shinyUI(fluidPage(
       conditionalPanel(condition="input.tabs=='Main'",
         selectInput('lmeasure','Select Line Measure',list("Reached"='reached',"Called"='called',"Referrals"='referrals',"DQs"='dqs',
           "DQ/Reached"='dqreach',"Ref/Reached"='refreached')),
-         selectInput('cmeasure','Select Line Measure',list("Reached"='reached',"Called"='called',"Referrals"='referrals',"DQs"='dqs',
+         selectInput('cmeasure','Select Bar Measure',list("Reached"='reached',"Called"='called',"Referrals"='referrals',"DQs"='dqs',
           "DQ/Reached"='dqreach',"Ref/Reached"='refreached'),selected='dqs')
 
   
