@@ -1,10 +1,11 @@
 
 library(shiny)
 library(rCharts)
+library(shinyIncubator)
 
 
 shinyUI(fluidPage(
-  
+  progressInit(),
   # Application title
   titlePanel("Screeners"),
 
@@ -38,7 +39,11 @@ shinyUI(fluidPage(
         conditionalPanel(condition="input.table",
          dataTableOutput("table")),
         #conditionalPanel(condition="input.table==false",
-        showOutput("day2",'highcharts')
+        showOutput("day2",'highcharts'),
+        actionButton('get',"Get Pie Chart"),
+        conditionalPanel(condition="input.get",
+        radioButtons("name","Name for pie chart output",list("Jenne"='Jenne',"Kim"='Kim',"Cheryl"="Cheryl")),
+        showOutput("pie",'highcharts'))
     ),
         tabPanel("Upload",
           actionButton("submit2","Review and Submit to database"),

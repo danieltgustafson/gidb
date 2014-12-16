@@ -12,6 +12,7 @@ library(plyr)
 library(data.table)
 library(xlsx)
 library(gdata)
+library(shinyIncubator)
 
 getConnection <- function(group) {
 
@@ -25,7 +26,7 @@ getConnection <- function(group) {
   return(.connection)
 }
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output,session) {
 
 screener_data<-reactive({
 	
@@ -106,6 +107,56 @@ output$table<-renderDataTable({
   screener_data()
 })
 
+
+screener_pats<-reactive({
+	if(input$get==0) return(NULL)
+	isolate({
+	withProgress(session, min=1, max=25, {
+          setProgress(message = 'Calculation in progress',
+                      detail = 'This may take a while...')
+          for (i in 1:25) {
+              setProgress(value = i)
+              Sys.sleep(1)
+          }
+	a<-dbGetQuery(getConnection(),"select count(distinct if(el_param is not null,a.patient_id,null)) counts,screener_name,if(status='Randomized','Randomized',if(el_param<>'NA' and el_param<>' ' and el_param<>'Multiple',
+				trim(el_param),if(el_change not like '%HbA1%',substring(el_change,1,20),'HbA1c'))) status1
+				from 
+				(select c.site_name,c.patient_id,week_observed,c.screener_name,b.status from gidb.screener_patients c join
+				gidb.endo1 b on b.patient_id = c.patient_id 
+				) a
+				join(
+				select b.site_id,b.patient_id,a.`el_param`,a.`Randomized`,el_change from gidb.endo1 b
+				join
+				gidb.eligible_track a on concat(substring(a.`Initials`,1,1),substring(a.initials,3,1)) = substring(b.patient_id,1,2) and if(a.Randomized='Yes',1,0) =if(b.status='Randomized',1,0)
+				and a.site=b.site_id) b
+				on a.patient_id = b.patient_id and a.site_name=b.site_id
+				where el_param is not null
+				group by screener_name,status1")
+	a$counts<-as.numeric(a$counts)
+	if(length(a[a$status1=="",]$status1)>0){
+		a[a$status1=="",]$status1<-'Unknown'
+	}
+	return(a)
+})
+})
+})
+selected<-reactive({
+	a<-subset(screener_pats(),screener_pats()$screener_name %in% input$name)
+	a<-ddply(a,.(screener_name),summarize,status=status1,value=counts/sum(counts))
+
+	return(a[order(a$value),])
+	})
+output$pie<-renderChart({
+	if(input$get==0) return(NULL)
+	isolate({
+		a <- Highcharts$new()
+		a$title(text = paste(input$name," Referrals"))
+		a$data(x = selected()$status, y =selected()$value*100 , type = "pie", name = "Percent")
+		a$addParams(dom='pie')
+		return(a)
+	})
+})
+
 jenne<-reactive({
 	if(input$submit==0) return(NULL)
 	isolate({
@@ -149,6 +200,7 @@ if(input$submit==0) return(NULL)
 	return(a)
 	})
 })
+
 
 
 observe({
