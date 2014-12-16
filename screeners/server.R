@@ -147,14 +147,13 @@ selected<-reactive({
 	return(a[order(a$value),])
 	})
 output$pie<-renderChart({
-	if(input$get==0) return(NULL)
-	isolate({
+
 		a <- Highcharts$new()
 		a$title(text = paste(input$name," Referrals"))
 		a$data(x = selected()$status, y =selected()$value*100 , type = "pie", name = "Percent")
 		a$addParams(dom='pie')
 		return(a)
-	})
+
 })
 
 jenne<-reactive({
