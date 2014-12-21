@@ -22,6 +22,10 @@ shinyUI(fluidPage(
       checkboxGroupInput('types','Select media types',
                          choices=c('Facebook','TV','Radio','Print','Google/YMSN','Transit'),
                          selected=c('Facebook','TV','Radio','Print','Google/YMSN','Transit')),
+      dateRangeInput('dateRange',
+      label = 'Date range input: yyyy-mm-dd',
+      start = '2013-01-01', end = Sys.Date() 
+    ),
       downloadButton("downloadData","Download")
     ),
 

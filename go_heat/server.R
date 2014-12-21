@@ -24,17 +24,20 @@ getConnection <- function(group) {
 shinyServer(function(input, output) {
  
 cpi_data<-reactive({
-  dbGetQuery(getConnection(),"
-      select max(inquiries) inquiries, max(cost) cost, max(referrals) referrals, sum(if(lower(status)='randomized',1,0)) as rands,
-      b.type,a.site_name,max(cost)/sum(if(lower(status)='randomized',1,0)) as cprand,
-      max(cost)/max(inquiries) as cpi, max(cost)/max(referrals)as cpref
+  dbGetQuery(getConnection(),paste("
+      select a.site_name,b.type,max(inquiries) inquiries, max(cost) cost, max(referrals) referrals, 
+      sum(if(lower(status)='randomized',1,0)) as rands,round(max(cost)/max(inquiries),2) as cpi, 
+      round(max(cost)/max(referrals),2)as cpref,
+      round(max(cost)/sum(if(lower(status)='randomized',1,0)),2) as cprand
       from gidb.endo1 a 
       join gidb.dim_media_type b on a.media_type = b.detail
       join
-      (select sum(inquiries) inquiries, sum(cost) cost, sum(referrals) referrals, type,site_id from gidb.media where start_date>'2014-01-01'
+      (select sum(inquiries) inquiries, sum(cost) cost, sum(referrals) referrals, type,site_id from gidb.media 
+        where type<>'Web' and start_date between '",paste(as.character(input$dateRange), collapse = "' and '"),"'
       group by type,site_id) c
       on b.type = c.type and a.site_id = c.site_id
-      group by a.site_name,b.type")
+      where `Pre-Screen Date` between '",paste(as.character(input$dateRange), collapse = "' and '"),"'
+      group by a.site_name,b.type",sep=""))
 
 })
 #output$types<-renderUI({
@@ -82,7 +85,7 @@ return(p)
 })
 
 output$table<-renderDataTable({
-  data_lim()
+  data_lim()[,-length(data_lim())]
 })
 output$downloadData <- downloadHandler(
     filename = function() { paste('cpi_data.csv', sep='') },
