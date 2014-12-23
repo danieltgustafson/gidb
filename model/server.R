@@ -205,11 +205,11 @@ else
 	h2$series(
 	    data=toJSONArray2(ddply(time2rand(),.(site_name),summarize,value=sum(rands)),names=F,json=F),
 	    type='scatter',
-	    color =' rgba(255,0,0,0.10)',
+	    color =' rgba(255,0,0,0.5)',
 	    name='Randomizations',
-	    yAxis=1,
-	    tooltip = paste("#!function(item){ return item.site_name + 'Randomizations: ' + item.value}!#",sep="")
+	    yAxis=1
     )
+    h2$tooltip(useHTML=T,formatter="#!function(){ return 'Randomizations: ' + this.y}!#")
 	h2$xAxis(categories = levels(factor(time2rand()$site_name)), title = list(text = "Site Name"),labels=list(rotation = -90,align='right'))
 	h2$yAxis(
     list(
