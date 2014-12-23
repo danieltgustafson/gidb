@@ -9,10 +9,10 @@ library(plyr)
 getConnection <- function(group) {
 
   if (!exists('.connection', where=.GlobalEnv)) {
-    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
+    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='54.69.26.113', port=3306)
   } else if (class(try(dbGetQuery(.connection, "SELECT 1"))) == "try-error") {
     dbDisconnect(.connection)
-    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
+    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='54.69.26.113', port=3306)
   }
 
   return(.connection)
@@ -171,7 +171,7 @@ output$box<-renderChart({
 			type='line',
 			color='blue',
 			name='Time 2 Randomization')
-		h3$tooltip(useHTML = T, formatter = "#! function() { return 'Days2Rand: ' + this.y; } !#")
+		#h3$tooltip(useHTML = T, formatter = "#! function() { return this.name + this.y; } !#")
 		h3$series(
 		    data=toJSONArray2(full_time()[,c('unix','rands')],names=F,json=F),
 		    type='column',
@@ -179,7 +179,7 @@ output$box<-renderChart({
 		    name='Randomizations',
 		    yAxis=1
     	)
-    	h3$tooltip(useHTML = T, formatter = "#! function() { return 'Randomizations: ' + this.y; } !#")
+    	h3$tooltip(useHTML = T, formatter = "#! function() { return this.series.name + ': ' + this.y; } !#")
 		h3$xAxis(type='datetime', title = list(text = "Month"),labels=list(rotation = -90,align='right'))
 		h3$yAxis(
 		    list(
@@ -209,7 +209,8 @@ else
 	    name='Randomizations',
 	    yAxis=1
     )
-    h2$tooltip(useHTML=T,formatter="#!function(){ return 'Randomizations: ' + this.y}!#")
+    #h2$tooltip(useHTML=T,formatter="#!function(){ return 'Randomizations: ' + this.y}!#")
+  
 	h2$xAxis(categories = levels(factor(time2rand()$site_name)), title = list(text = "Site Name"),labels=list(rotation = -90,align='right'))
 	h2$yAxis(
     list(
