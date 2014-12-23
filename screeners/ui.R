@@ -15,8 +15,10 @@ shinyUI(fluidPage(
 
       conditionalPanel(condition="input.tabs=='Main'",
         selectInput('lmeasure','Select Line Measure',list("Reached"='reached',"Called"='called',"Referrals"='referrals',"DQs"='dqs',
+          "Randomizations"='randomized',
           "DQ/Reached"='dqreach',"Ref/Reached"='refreached')),
          selectInput('cmeasure','Select Bar Measure',list("Reached"='reached',"Called"='called',"Referrals"='referrals',"DQs"='dqs',
+          "Randomizations"='randomized',
           "DQ/Reached"='dqreach',"Ref/Reached"='refreached'),selected='dqs')
 
   
@@ -42,8 +44,8 @@ shinyUI(fluidPage(
         showOutput("day2",'highcharts'),
         actionButton('get',"Get Pie Chart"),
         conditionalPanel(condition="input.get",
-        radioButtons("name","Name for pie chart output",list("Jenne"='Jenne',"Kim"='Kim',"Cheryl"="Cheryl")),
-        showOutput("pie",'highcharts'))
+        #radioButtons("name","Name for pie chart output",list("Jenne"='Jenne',"Kim"='Kim',"Cheryl"="Cheryl")),
+        showOutput("pie_kim",'highcharts'), showOutput("pie_jenne",'highcharts'), showOutput("pie_cheryl",'highcharts'))
     ),
         tabPanel("Upload",
           actionButton("submit2","Review and Submit to database"),

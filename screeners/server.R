@@ -32,9 +32,15 @@ screener_data<-reactive({
 	
 	a<-dbGetQuery(getConnection(),"select screener,week_start, sum(new_refs_called) called, sum(new_refs_reached+past_refs_reached)
 	 reached, sum(dqs) dqs, sum(passed) referrals,sum(passed)/sum(new_refs_reached+past_refs_reached) refreached,
-	 sum(dqs)/sum(new_refs_reached+past_refs_reached) dqreach
-	from gidb.screeners
-	group by screener, week_start")
+	 sum(dqs)/sum(new_refs_reached+past_refs_reached) dqreach,randomized, randomized/sum(new_refs_reached+past_refs_reached) randreach
+	from gidb.screeners a
+	join (select screener_name,week_observed, count(distinct a.patient_id), count(distinct if(status='Randomized',a.patient_id,null)) 
+		randomized from gidb.screener_patients a
+join gidb.endo1 b on a.patient_id = b.patient_id
+group by screener_name,week_observed) b on a.screener = b.screener_name
+and a.week_start=b.week_observed
+	group by screener, week_start
+")
 	a$unix<-as.numeric(as.POSIXct(a$week_start))*1000
 	return(a)
 })
@@ -140,20 +146,53 @@ screener_pats<-reactive({
 })
 })
 })
-selected<-reactive({
-	a<-subset(screener_pats(),screener_pats()$screener_name %in% input$name)
+#selected<-reactive({
+#	a<-subset(screener_pats(),screener_pats()$screener_name %in% input$name)
+#	a<-ddply(a,.(screener_name),summarize,status=status1,value=counts/sum(counts))
+#	return(a[order(a$value),])
+#	})
+#output$pie<-renderChart({
+#		a <- Highcharts$new()
+#		a$title(text = paste(input$name," Referrals"))
+#		a$data(x = selected()$status, y =selected()$value*100 , type = "pie", name = "Percent")
+#		a$addParams(dom='pie')
+#		return(a)
+#})
+kim1<-reactive({
+	a<-subset(screener_pats(),screener_pats()$screener_name =='Kim')
 	a<-ddply(a,.(screener_name),summarize,status=status1,value=counts/sum(counts))
-
 	return(a[order(a$value),])
 	})
-output$pie<-renderChart({
-
+output$pie_kim<-renderChart({
 		a <- Highcharts$new()
-		a$title(text = paste(input$name," Referrals"))
-		a$data(x = selected()$status, y =selected()$value*100 , type = "pie", name = "Percent")
-		a$addParams(dom='pie')
+		a$title(text = paste('Kim', "Referrals"))
+		a$data(x = kim1()$status, y =kim1()$value*100 , type = "pie", name = "Percent")
+		a$addParams(dom='pie_kim')
 		return(a)
-
+})
+jenne1<-reactive({
+	a<-subset(screener_pats(),screener_pats()$screener_name =='Jenne')
+	a<-ddply(a,.(screener_name),summarize,status=status1,value=counts/sum(counts))
+	return(a[order(a$value),])
+	})
+output$pie_jenne<-renderChart({
+		a <- Highcharts$new()
+		a$title(text = paste('Jenne'," Referrals"))
+		a$data(x = jenne1()$status, y =jenne1()$value*100 , type = "pie", name = "Percent")
+		a$addParams(dom='pie_jenne')
+		return(a)
+})
+cheryl1<-reactive({
+	a<-subset(screener_pats(),screener_pats()$screener_name=='Cheryl')
+	a<-ddply(a,.(screener_name),summarize,status=status1,value=counts/sum(counts))
+	return(a[order(a$value),])
+	})
+output$pie_cheryl<-renderChart({
+		a <- Highcharts$new()
+		a$title(text = paste('Cheryl'," Referrals"))
+		a$data(x = cheryl1()$status, y =cheryl1()$value*100 , type = "pie", name = "Percent")
+		a$addParams(dom='pie_cheryl')
+		return(a)
 })
 
 jenne<-reactive({
