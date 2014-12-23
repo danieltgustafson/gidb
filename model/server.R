@@ -4,14 +4,15 @@ library(shiny)
 library(RMySQL)
 library(rCharts)
 library(reshape2)
+library(plyr)
 
 getConnection <- function(group) {
 
   if (!exists('.connection', where=.GlobalEnv)) {
-    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='54.69.26.113', port=3306)
+    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
   } else if (class(try(dbGetQuery(.connection, "SELECT 1"))) == "try-error") {
     dbDisconnect(.connection)
-    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='54.69.26.113', port=3306)
+    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
   }
 
   return(.connection)
@@ -19,8 +20,22 @@ getConnection <- function(group) {
 shinyServer(function(input, output) {
 
 time2rand<-reactive({
-	dbGetQuery(getConnection(),"select site_name,datediff(Randomization,`Pre-Screen Date` ) as diff from gidb.endo1 
-		where  datediff(Randomization,`Pre-Screen Date` ) is not null and  datediff(Randomization,`Pre-Screen Date` ) >0")
+	dbGetQuery(getConnection(),"select site_name,datediff(Randomization,`Pre-Screen Date` ) as diff,
+		sum(if(lower(status)='randomized',1,0)) as rands
+		from gidb.endo1 
+		where  datediff(Randomization,`Pre-Screen Date` ) is not null and  datediff(Randomization,`Pre-Screen Date` ) >0
+		group by site_name,datediff(Randomization,`Pre-Screen Date` )")
+	})
+full_time<-reactive({
+	a<-dbGetQuery(getConnection(),"select round(avg(datediff(Randomization,`Pre-Screen Date` )),0) as diff,
+		sum(if(lower(status)='randomized',1,0)) as rands,concat(year(`Pre-Screen Date`),'-',
+		if(month(`Pre-Screen Date`)<10,'0',''),month(`Pre-Screen Date`),'-','01') date
+		from gidb.endo1 
+		where  datediff(Randomization,`Pre-Screen Date` ) is not null and  datediff(Randomization,`Pre-Screen Date` ) >0
+		group by date")
+	a$unix<-as.numeric(as.POSIXct(a$date))*1000
+	a[order(a$unix),]
+	return(a)
 	})
 
   
@@ -28,7 +43,7 @@ time2rand<-reactive({
 cpi_data<-reactive({
 
 	dbGetQuery(getConnection(),paste("
-		select if(max(inquiries)>0,max(inquiries),NULL) inquiries, max(cost) cost, max(referrals) referrals, sum(if(lower(status)='randomized',1,0)) as rands,
+		select if(max(inquiries)>0,max(inquiries),NULL) inquiries, if(max(cost)>0,max(cost),NULL) cost, max(referrals) referrals, sum(if(lower(status)='randomized',1,0)) as rands,
 		b.type,a.site_name, sum(if(lower(status)='randomized',1,0))>0,max(cost)/sum(if(lower(status)='randomized',1,0)) as cprand,
 		max(cost)/max(inquiries) as cpi, max(cost)/max(referrals)as cpref
 		from gidb.endo1 a 
@@ -149,17 +164,72 @@ output$bar<-renderChart({
 	
 })
 output$box<-renderChart({
+	if(input$all){
+		h3=Highcharts$new()
+		h3$series(
+			data=toJSONArray2(full_time()[,c('unix','diff')],names=F,json=F),
+			type='line',
+			color='blue',
+			name='Time 2 Randomization')
+		h3$tooltip(useHTML = T, formatter = "#! function() { return 'Days2Rand: ' + this.y; } !#")
+		h3$series(
+		    data=toJSONArray2(full_time()[,c('unix','rands')],names=F,json=F),
+		    type='column',
+		    color =' rgba(255,0,0,0.10)',
+		    name='Randomizations',
+		    yAxis=1
+    	)
+    	h3$tooltip(useHTML = T, formatter = "#! function() { return 'Randomizations: ' + this.y; } !#")
+		h3$xAxis(type='datetime', title = list(text = "Month"),labels=list(rotation = -90,align='right'))
+		h3$yAxis(
+		    list(
+		        list(
+		            title = list(text = 'Inq. to Randomization'),min=0
+		        ),
+		        list(
+		            title = list(text = '# Randomizations'), min=0,
+		            opposite =TRUE
+		        )
+		    )
+		)
+		h3$addParams(dom='box')
+		h3$set(width = 1000, height = 600)
+	return(h3)
+
+}
+else
+{
 	bwstats = setNames(as.data.frame(boxplot(diff ~ site_name, data = time2rand(), plot = F)$stats[,1:23]), nm = NULL)
 	h2 = Highcharts$new()
 	h2$set(series = list(list(name = "Days to randomization distribution", data = bwstats)))
+	h2$series(
+	    data=toJSONArray2(ddply(time2rand(),.(site_name),summarize,value=sum(rands)),names=F,json=F),
+	    type='scatter',
+	    color =' rgba(255,0,0,0.10)',
+	    name='Randomizations',
+	    yAxis=1,
+	    tooltip = paste("#!function(item){ return item.site_name + 'Randomizations: ' + item.value}!#",sep="")
+    )
 	h2$xAxis(categories = levels(factor(time2rand()$site_name)), title = list(text = "Site Name"),labels=list(rotation = -90,align='right'))
-	h2$yAxis(title = list(text = "Inq. to Randomization"),min=0)
+	h2$yAxis(
+    list(
+        list(
+            title = list(text = 'Inq. to Randomization'),min=0
+        ),
+        list(
+            title = list(text = '# Randomizations'), min=0,
+            opposite =TRUE
+        )
+    )
+)
 	h2$chart(type = "boxplot")
 	h2$addParams(dom='box')
 	h2$set(width = 1000, height = 600)
 return(h2)
+}
+	})
 })
-})
+
 
 
 

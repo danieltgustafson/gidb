@@ -27,7 +27,7 @@ shinyUI(fluidPage(
 
     # Show a plot of the generated distribution
     mainPanel(
-
+      checkboxInput('all','Check to show all-site trend'),
       showOutput('box','highcharts'),
       conditionalPanel('!is.na(output.bar)',
         checkboxInput('inqs','Check to show predicted inquiries'),
