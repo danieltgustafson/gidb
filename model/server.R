@@ -28,8 +28,8 @@ time2rand<-reactive({
 	})
 full_time<-reactive({
 	a<-dbGetQuery(getConnection(),"select round(avg(datediff(Randomization,`Pre-Screen Date` )),0) as diff,
-		sum(if(lower(status)='randomized',1,0)) as rands,concat(year(`Pre-Screen Date`),'-',
-		if(month(`Pre-Screen Date`)<10,'0',''),month(`Pre-Screen Date`),'-','01') date
+		sum(if(lower(status)='randomized',1,0)) as rands,concat(year(`Randomization`),'-',
+		if(month(`Randomization`)<10,'0',''),month(`Randomization`),'-','01') date
 		from gidb.endo1 
 		where  datediff(Randomization,`Pre-Screen Date` ) is not null and  datediff(Randomization,`Pre-Screen Date` ) >0
 		group by date")
