@@ -14,12 +14,12 @@ getConnection <- function(group) {
 
   if (!exists('.connection', where=.GlobalEnv)) {
     .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',
-      #host='54.69.26.113', port=3306)
+     # host='54.69.26.113', port=3306)
     host='localhost', port=3306)
   } else if (class(try(dbGetQuery(.connection, "SELECT 1"))) == "try-error") {
     dbDisconnect(.connection)
     .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',
-      #host='54.69.26.113', port=3306)
+    #  host='54.69.26.113', port=3306)
     host='localhost', port=3306)
   }
 
@@ -54,26 +54,49 @@ selector<-reactive({
     suma<-ddply(cpi_data(),.(site_name),summarize,dat=sum(inquiries))
   }
   else if (input$measure=='rands'){
-    suma<-ddply(cpi_data(),.(site_name),summarize,dat=sum(rands))
+    suma<-ddply(cpi_data(),.(site_name),summarize,dat=sum(rands),dat2=round(sum(rands)/sum(referrals),2))
   }
   else {
-    suma<-ddply(cpi_data(),.(site_name),summarize,dat=sum(referrals))
+    suma<-ddply(cpi_data(),.(site_name),summarize,dat=sum(referrals),dat2=round(sum(referrals)/sum(inquiries),2))
   }
     suma<-suma[order(suma$dat),]
     return(suma)
 })
-output$bars<-renderChart({
+output$bars<-renderChart2({
  
   #h<-hPlot(dat~site_name,data=selector(),type='bar')
   h<-Highcharts$new()
+  h$yAxis(
+          list(
+              list(
+                  title = list(text = 'Count'),min=0
+              ),
+              list(
+                  title = list(text = 'Rate'), min=0,
+                  opposite =TRUE
+              )
+          )
+      )
   h$series(
         data = toJSONArray2(selector()[,c('site_name','dat')],names = F, json = F),
         name = input$measure,
         type = "bar",
         color="#137df6"
     )
+  if(input$measure!='inquiries'){
+  h$series(
+        data = toJSONArray2(selector()[,c('site_name','dat2')],names = F, json = F),
+        name = 'conversion',
+        type = "bar",
+        groupPadding=0,
+        color="#0ac507",
+        yAxis=1
+    )
+}
   h$xAxis(type='category')
   h$addParams(dom='bars')
+  h$set(width = 800, height = 800)
+  
   return(h)
   })
 

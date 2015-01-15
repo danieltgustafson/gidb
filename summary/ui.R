@@ -27,10 +27,10 @@ shinyUI(fluidPage(
 ),
 
     # Show a plot of the generated distribution
-    mainPanel(
-    
-        textOutput('text'),
-          showOutput('bars','highcharts')
-    
+    mainPanel(tabPanel("Plot",tags$style('.highcharts {height: 1000px}'),
+    tags$style('.highcharts {width: 1000px}'),
+     # div(id = "myplot", style = "display:inline;position:absolute",
+               showOutput('bars','highcharts')
+      )
   ))
 ))
