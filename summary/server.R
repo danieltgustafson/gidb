@@ -14,7 +14,7 @@ getConnection <- function(group) {
 
   if (!exists('.connection', where=.GlobalEnv)) {
     .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',
-     # host='54.69.26.113', port=3306)
+    # host='54.69.26.113', port=3306)
     host='localhost', port=3306)
   } else if (class(try(dbGetQuery(.connection, "SELECT 1"))) == "try-error") {
     dbDisconnect(.connection)
@@ -51,7 +51,7 @@ output$text<-renderText({
 
 selector<-reactive({
   if(input$measure=='inquiries'){
-    suma<-ddply(cpi_data(),.(site_name),summarize,dat=sum(inquiries))
+    suma<-ddply(cpi_data(),.(site_name),summarize,dat=sum(inquiries),dat2=round(sum(rands)/sum(inquiries),4))
   }
   else if (input$measure=='rands'){
     suma<-ddply(cpi_data(),.(site_name),summarize,dat=sum(rands),dat2=round(sum(rands)/sum(referrals),2))
@@ -83,7 +83,7 @@ output$bars<-renderChart2({
         type = "bar",
         color="#137df6"
     )
-  if(input$measure!='inquiries'){
+  #if(input$measure!='inquiries'){
   h$series(
         data = toJSONArray2(selector()[,c('site_name','dat2')],names = F, json = F),
         name = 'conversion',
@@ -92,7 +92,7 @@ output$bars<-renderChart2({
         color="#0ac507",
         yAxis=1
     )
-}
+#}
   h$xAxis(type='category')
   h$addParams(dom='bars')
   h$set(width = 800, height = 800)
