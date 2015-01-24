@@ -9,10 +9,14 @@ library(plyr)
 getConnection <- function(group) {
 
   if (!exists('.connection', where=.GlobalEnv)) {
-    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
+    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',
+    	#host='localhost', port=3306)
+    host='54.69.26.113', port=3306)
   } else if (class(try(dbGetQuery(.connection, "SELECT 1"))) == "try-error") {
     dbDisconnect(.connection)
-    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
+    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',
+    	#host='localhost', port=3306)
+    host='54.69.26.113', port=3306)
   }
 
   return(.connection)
@@ -100,11 +104,6 @@ a<-as.data.frame(rbind(cbind('Facebook',fb_inq$coeff[[1]],summary(fb_inq)$coeffi
 				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeGoogle/YMSN']]-summary(rand_mod)$coefficients[2,2]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_gg*gg_inq$coeff[[1]])),
 				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeGoogle/YMSN']]+summary(rand_mod)$coefficients[2,2]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_gg*gg_inq$coeff[[1]])),
 			input$spend_gg),
-		cbind('Google/YMSN',gg_inq$coeff[[1]],summary(gg_inq)$coefficients[, 2],
-			exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeGoogle/YMSN']]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_gg*gg_inq$coeff[[1]])),
-				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeGoogle/YMSN']]-summary(rand_mod)$coefficients[2,2]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_gg*gg_inq$coeff[[1]])),
-				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeGoogle/YMSN']]+summary(rand_mod)$coefficients[2,2]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_gg*gg_inq$coeff[[1]])),
-			input$spend_gg),
 		cbind('Print',tv_inq$coeff[[1]],summary(pr_inq)$coefficients[, 2],
 			exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typePrint']]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_pr*pr_inq$coeff[[1]])),
 				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typePrint']]-summary(rand_mod)$coefficients[3,2]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_pr*pr_inq$coeff[[1]])),
@@ -118,17 +117,24 @@ a<-as.data.frame(rbind(cbind('Facebook',fb_inq$coeff[[1]],summary(fb_inq)$coeffi
 				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeRadio']]+summary(rand_mod)$coefficients[4,2]+
 					rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_ra*ra_inq$coeff[[1]])),
 				input$spend_ra),
+		if(summary(rand_mod)$coeff[5,4]<.15){
 		cbind('Transit',tr_inq$coeff[[1]],summary(tr_inq)$coefficients[, 2],
-			exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeTransit']]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_tr*tr_inq$coeff[[1]])),
-				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeTransit']]-summary(rand_mod)$coefficients[5,2]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_tr*tr_inq$coeff[[1]])),
-				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeTransit']]+summary(rand_mod)$coefficients[5,2]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_tr*tr_inq$coeff[[1]])),
-				input$spend_tr),
+			exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeTransit']]+
+				rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_tr*tr_inq$coeff[[1]])),
+				
+					exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeTransit']]-summary(rand_mod)$coefficients[5,2]+
+						rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_tr*tr_inq$coeff[[1]])),
+				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeTransit']]+summary(rand_mod)$coefficients[5,2]+
+						rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_tr*tr_inq$coeff[[1]])),
+				input$spend_tr)}
+		else{cbind('Transit',0,0,0,0,0,0)},
 		cbind('TV',tv_inq$coeff[[1]],summary(tv_inq)$coefficients[, 2],
 			exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeTV']]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*
 				log(input$spend_tv*tv_inq$coeff[[1]])),
 				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeTV']]-summary(rand_mod)$coefficients[6,2]+
 					rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_tv*tv_inq$coeff[[1]])),
-				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeTV']]+summary(rand_mod)$coefficients[6,2]+rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_tv*tv_inq$coeff[[1]])),
+				exp(rand_mod$coeff[[1]]+site_coeff()+rand_mod$coeff[['cpi_data()$typeTV']]+summary(rand_mod)$coefficients[6,2]+
+					rand_mod$coeff['log(cpi_data()$inquiries)'][[1]]*log(input$spend_tv*tv_inq$coeff[[1]])),
 				input$spend_tv)
 ),stringsAsFactors=FALSE)
 
