@@ -13,10 +13,14 @@ library(plyr)
 getConnection <- function(group) {
 
   if (!exists('.connection', where=.GlobalEnv)) {
-    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
+    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',
+     # host='54.69.26.113', port=3306)
+    host='localhost', port=3306)
   } else if (class(try(dbGetQuery(.connection, "SELECT 1"))) == "try-error") {
     dbDisconnect(.connection)
-    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
+    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',
+     # host='54.69.26.113', port=3306)
+    host='localhost', port=3306)
   }
 
   return(.connection)
@@ -28,7 +32,9 @@ cpi_data<-reactive({
       select a.site_name,b.type,max(inquiries) inquiries, max(cost) cost, max(referrals) referrals, 
       sum(if(lower(status)='randomized',1,0)) as rands,round(max(cost)/max(inquiries),2) as cpi, 
       round(max(cost)/max(referrals),2)as cpref,
-      round(max(cost)/sum(if(lower(status)='randomized',1,0)),2) as cprand
+      round(max(cost)/sum(if(lower(status)='randomized',1,0)),2) as cprand,
+      sum(if(lower(status)='randomized',1,0))/max(inquiries) as inq_2_rand,max(referrals)/max(inquiries) as inq_2_ref,
+      sum(if(lower(status)='randomized',1,0))/max(referrals) as ref_2_rand
       from gidb.endo1 a 
       join gidb.dim_media_type b on a.media_type = b.detail
       join
@@ -68,7 +74,17 @@ else{
     return(b)
 
 })
-
+selector<-reactive({
+  #paste(input$measures_two)
+  sum<-ddply(cpi_data(),.(site_name),summarize,dat=sum(inquiries))
+  sum<-sum[order(sum$dat),]
+  return(sum)
+})
+output$bars<-renderChart({
+ 
+  h<-hPlot(dat~site_name,data=selector(),type='bar')
+  return(h)
+  })
 
 
 output$heatmap<-renderChart({
@@ -77,15 +93,35 @@ p <- rPlot(type ~ site_num, data = data_lim(), color=paste("'",input$measure,"'"
               ,tooltip = paste("#!function(item){ return item.site_name + item.type + ' CP: ' + item.",
                 input$measure," +' Count: ' + item.",
               switch(input$measure,'cpi'='inquiries','cprand'='rands','cpref'='referrals'),"}!#",sep=""))
-p$guides(x=list(numticks = length( data_lim()$site_num ),
-    labels = data_lim()$site_num),"{color: {scale: {type: gradient, lower: steelblue, upper: white}}}")
-p$addParams(width = 1000, height = 600, dom = 'heatmap',title =
+p$guides(x=list(numticks=length(unique(data_lim()$site_num)),labels=data_lim()$site_num))
+p$guides(y=list(numticks=length(input$types),labels=unique(data_lim()$type)))
+p$addParams(width = 1000, height = 700, dom = 'heatmap',title =
 	paste("Cost Per ",switch(input$measure,'cpi'='Inquiry','cprand'='Randomization','cpref'='Referral')))
 return(p)
 })
 
 output$table<-renderDataTable({
-  data_lim()[,-length(data_lim())]
+  if(input$total=='all'){
+    data_lim()[,-length(data_lim())]
+  }
+  else if(input$total == 'media'){
+    ddply(data_lim(),.(data_lim()$type),summarize,inquiries=sum(inquiries),cost=sum(cost),referrals=sum(referrals),
+      rands=sum(rands),cpi=round(sum(cost)/sum(inquiries),2),cpref=round(sum(cost)/sum(referrals),2),cprand=round(sum(cost)/sum(rands),2),
+      inq_2_rand=paste(round(100*sum(rands)/sum(inquiries),2),'%',sep=''),inq_2_ref=paste(round(100*sum(referrals)/sum(inquiries),2),'%',sep=''),
+      ref_2_rand=paste(round(100*sum(rands)/sum(referrals),2),'%',sep=''))
+  }
+  else if(input$total == 'site'){
+    ddply(data_lim(),.(data_lim()$site_name),summarize,inquiries=sum(inquiries),cost=sum(cost),referrals=sum(referrals),
+      rands=sum(rands),cpi=round(sum(cost)/sum(inquiries),2),cpref=round(sum(cost)/sum(referrals),2),cprand=round(sum(cost)/sum(rands),2),
+      inq_2_rand=paste(round(100*sum(rands)/sum(inquiries),2),'%',sep=''),inq_2_ref=paste(round(100*sum(referrals)/sum(inquiries),2),'%',sep=''),
+      ref_2_rand=paste(round(100*sum(rands)/sum(referrals),2),'%',sep=''))
+  }
+  else{
+    ddply(data_lim(),.(),summarize,inquiries=sum(inquiries),cost=sum(cost),referrals=sum(referrals),
+      rands=sum(rands),cpi=round(sum(cost)/sum(inquiries),2),cpref=round(sum(cost)/sum(referrals),2),cprand=round(sum(cost)/sum(rands),2),
+      inq_2_rand=paste(round(100*sum(rands)/sum(inquiries),2),'%',sep=''),inq_2_ref=paste(round(100*sum(referrals)/sum(inquiries),2),'%',sep=''),
+      ref_2_rand=paste(round(100*sum(rands)/sum(referrals),2),'%',sep=''))
+  }
 })
 output$downloadData <- downloadHandler(
     filename = function() { paste('cpi_data.csv', sep='') },

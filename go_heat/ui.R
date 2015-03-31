@@ -16,7 +16,8 @@ shinyUI(fluidPage(
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
-      radioButtons('measure','Select measurement',list("CPI"='cpi',"CPRef"='cpref',"CPRand"='cprand')),
+     conditionalPanel(condition="input.tabs=='Heat'",
+      radioButtons('measure','Select measurement',c("CPI"='cpi',"CPRef"='cpref',"CPRand"='cprand'),selected='cprand'),
       #uiOutput('types'),
       #checkboxInput('selected','Select All',value=TRUE),  
       checkboxGroupInput('types','Select media types',
@@ -28,16 +29,25 @@ shinyUI(fluidPage(
     ),
       downloadButton("downloadData","Download")
     ),
-
+    conditionalPanel(condition="input.tabs=='Bar'",
+       selectInput('LAME','Select a measurement',list("Inquiries"='inquiries',"Randomizations"='rands',"Referrals"='referrals'))
+    )
+),
 
     # Show a plot of the generated distribution
     mainPanel(
-      checkboxInput('best','Check to show only best performer'),
-      radioButtons('table','Show Table or Graphic?',list("Table"='table',"Graphic"='graphic')),
-      conditionalPanel(condition="input.table=='graphic'",
-        showOutput("heatmap",'polycharts')),
-      conditionalPanel(condition="input.table=='table'",
-        dataTableOutput("table"))
+      tabsetPanel(id="tabs",
+        tabPanel("Heat",
+          checkboxInput('best','Check to show only best performer'),
+          radioButtons('table','Show Table or Graphic?',list("Table"='table',"Graphic"='graphic')),
+          conditionalPanel(condition="input.table=='graphic'",
+            showOutput("heatmap",'polycharts')),
+          conditionalPanel(condition="input.table=='table'",
+            selectInput('total','Total Options',list("No Total"='all',"By Medium"='media',"By Site"='site','Overall'='total')),
+            dataTableOutput("table"))
+        ),
+        tabPanel("Bar",
+          showOutput('bars','highcharts'))
     )
-  )
+  ))
 ))
