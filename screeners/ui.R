@@ -16,15 +16,16 @@ shinyUI(fluidPage(
       conditionalPanel(condition="input.tabs=='Main'",
         selectInput('lmeasure','Select Line Measure',list("Reached"='reached',"Called"='called',"Referrals"='referrals',"DQs"='dqs',
           "Randomizations"='randomized',
-          "DQ/Reached"='dqreach',"Ref/Reached"='refreached')),
+          "DQ/Reached"='dqreach',"Ref/Reached"='refreached',"Rand/Referal"='randref',"None"='None')),
          selectInput('cmeasure','Select Bar Measure',list("Reached"='reached',"Called"='called',"Referrals"='referrals',"DQs"='dqs',
           "Randomizations"='randomized',
-          "DQ/Reached"='dqreach',"Ref/Reached"='refreached'),selected='dqs')
-
-  
-      
-
+          "DQ/Reached"='dqreach',"Ref/Reached"='refreached',"Rand/Referal"='randref',"None"='None'),selected='dqs')
     ),
+      conditionalPanel(condition="input.tabs=='Pie'",
+        uiOutput('ui_sites'),
+        checkboxInput('selected','Select All',value=TRUE),
+        dateInput('date',"Screen Date > : ",value='2014-01-01')
+      ),
       conditionalPanel(condition="input.tabs=='Upload'",
         fileInput('file1', 'Upload tracking file for JENNE'),
         fileInput('file2', 'Upload tracking file for KIM'),
@@ -32,17 +33,20 @@ shinyUI(fluidPage(
         actionButton("submit","Submit")
     )),
 
-
-    # Show a plot of the generated distribution
     mainPanel(
       tabsetPanel(id="tabs",
         tabPanel("Main",
                 checkboxInput("table","Show as table?"),
         conditionalPanel(condition="input.table",
          dataTableOutput("table")),
-        #conditionalPanel(condition="input.table==false",
-        showOutput("day2",'highcharts'),
-        actionButton('get',"Get Pie Chart"),
+        conditionalPanel(condition="input.table==false",
+        showOutput("day2",'highcharts')),
+        checkboxInput("monthly","Group time to randomization by Month?"),
+        #dataTableOutput("timechart"),
+        showOutput("timechart",'highcharts')
+        ),
+        tabPanel("Pie",
+        actionButton('get',"Get Pie Charts"),
         conditionalPanel(condition="input.get",
         #radioButtons("name","Name for pie chart output",list("Jenne"='Jenne',"Kim"='Kim',"Cheryl"="Cheryl")),
         showOutput("pie_kim",'highcharts'), showOutput("pie_jenne",'highcharts'), showOutput("pie_cheryl",'highcharts'))
