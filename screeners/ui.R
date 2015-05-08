@@ -11,9 +11,16 @@ shinyUI(fluidPage(
 
   # Sidebar with a slider input for number of bins
   sidebarLayout(
-    sidebarPanel(
+    sidebarPanel("This is one of the more customizable applications providing a vast number of user-options for the metrics to visualize.  
+      The focus of this one is on 'screeners', which are invidual representatives that are responsible for performing phone-interviews on
+      candidates that have passed through the initial screening process.  They are in place as an additional filter for potentially unqualified
+      candidates - before they go through the battery of expensive testing.",
 
       conditionalPanel(condition="input.tabs=='Main'",
+        "This menu allows the user to select which metric is represented by the line in the graph to the right.  Options include counting the
+        number of candidates called (per week), reached by phone, referred on to the next step, disqualified, or ultimately enrolled.  
+        There are also ratios of these values available and the same metric list can be graphed as a column for comparison.  All data is split
+        by the individual screening person responsible.",
         selectInput('lmeasure','Select Line Measure',list("Reached"='reached',"Called"='called',"Referrals"='referrals',"DQs"='dqs',
           "Randomizations"='randomized',
           "DQ/Reached"='dqreach',"Ref/Reached"='refreached',"Rand/Referal"='randref',"None"='None')),
@@ -35,7 +42,7 @@ shinyUI(fluidPage(
 
     mainPanel(
       tabsetPanel(id="tabs",
-        tabPanel("Main",
+        tabPanel("Main", "As always, we provide the option of graphic or tabular views of the data",
                 checkboxInput("table","Show as table?"),
         conditionalPanel(condition="input.table",
          dataTableOutput("table")),
@@ -45,13 +52,16 @@ shinyUI(fluidPage(
         #dataTableOutput("timechart"),
         showOutput("timechart",'highcharts')
         ),
-        tabPanel("Pie",
+        tabPanel("Pie","Here we provide a 'drilldown' into the reasons that candidates were ultimately disqualified from the process after a 
+          screener had referred them on.  It can help us identify screeners that may systematically be missing a reason for excluding the candidate
+          and potentially re-train them on what to check for ",
         actionButton('get',"Get Pie Charts"),
         conditionalPanel(condition="input.get",
         #radioButtons("name","Name for pie chart output",list("Jenne"='Jenne',"Kim"='Kim',"Cheryl"="Cheryl")),
         showOutput("pie_kim",'highcharts'), showOutput("pie_jenne",'highcharts'), showOutput("pie_cheryl",'highcharts'))
     ),
-        tabPanel("Upload",
+        tabPanel("Upload", "This second tab again allows the user to upload files that will be loaded into the database and impact the
+          graphics in the first tab.",
           actionButton("submit2","Review and Submit to database"),
           conditionalPanel(condition="input.submit2",
             textOutput("send")
