@@ -3,7 +3,7 @@ library(shiny)
 library(RMySQL)
 library(rCharts)
 library(plyr)
-library(googleVis)
+#library(googleVis)
 
 
 getConnection <- function(group) {
