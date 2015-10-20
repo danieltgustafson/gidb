@@ -22,7 +22,7 @@ shinyUI(fluidPage(
     mainPanel(
       tabsetPanel(id="tabs",
         tabPanel("First Use vs Time",
-          dataTableOutput("test"),
+          #dataTableOutput("test"),
           showOutput("usage",'highcharts')
     )
         #,tabPanel("Retention",
