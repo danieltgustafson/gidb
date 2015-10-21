@@ -16,8 +16,8 @@ shinyServer(function(input, output) {
   
 
 
-con=dbConnect(PostgreSQL(),user='hoveruser',password='',dbname='hover',
-	#host='54.149.77.253', port=5432)
+con=dbConnect(PostgreSQL(),user='hoveruser',password='',dbname='hover'
+	#,host='54.149.77.253', port=5432)
 	)
   
   
