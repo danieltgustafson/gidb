@@ -79,7 +79,7 @@ output$test<-renderDataTable({
 output$usage<-renderChart({
       
        	theGraph <- hPlot(pct~date_gap,data=summary(),type='line',name='All Pro Avg.')
-		theGraph$yAxis(title = list(text = 'users'),min=0)
+		theGraph$yAxis(title = list(text = 'Cum. % Users'),min=0)
 		#theGraph$series(
 		 #   data = toJSONArray2(summary()[,c('date_gap','pct'),with=FALSE],names = F, json = F),
 		  #  name = "All Pro Avg",
