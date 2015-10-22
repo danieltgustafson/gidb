@@ -36,7 +36,7 @@ from metrics where name = 'model.images.count'
 and jsonb_extract_path_text(tags,'org_name') not in ('Homeowner') and
 jsonb_extract_path_text(tags,'org_name') not like 'RbA%'
 and jsonb_extract_path_text(tags,'org_name')  not like 'Valspar%' and jsonb_extract_path_text(tags,'org_name')  
-not like 'Renewal by%' and lower(jsonb_extract_path_text(tags,'org_name'))  not like 'hover%'
+not like 'Renewal%' and lower(jsonb_extract_path_text(tags,'org_name'))  not like 'hover%'
 group by org,users,org_id) a
 right join 
 (select min(happened_at) happened_at,jsonb_extract_path_text(tags,'user_email') users,
@@ -50,7 +50,7 @@ split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) not in ('Homeow
 split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) not like 'RbA%'
 and split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) not like 'Valspar%' 
 and split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) 
-not like 'Renewal by%' and lower(split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1)) not like 'hover%'
+not like 'Renewal%' and lower(split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1)) not like 'hover%'
 group by quarter_id,month_id,date_gap,org2
 ")
 return(a)
