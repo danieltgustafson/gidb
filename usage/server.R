@@ -17,13 +17,15 @@ shinyServer(function(input, output) {
 
 
 con=dbConnect(PostgreSQL(),user='hoveruser',password='',dbname='hover'
-	#,host='54.149.77.253', port=5432)
+	,host='54.149.77.253', port=5432
 	)
+	
   
   
  
 data<-reactive({
-	a<-dbGetQuery(con,"select case when (date(a.first_model) - date(b.happened_at))<0 then 0
+	a<-dbGetQuery(con,"select concat(date_part('year',b.happened_at),'-', date_part('month',b.happened_at)) month_id,
+concat(date_part('year',b.happened_at),'-',date_part('quarter',b.happened_at)) quarter_id, case when (date(a.first_model) - date(b.happened_at))<0 then 0
 else (date(a.first_model) - date(b.happened_at)) end as date_gap,split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) org2,
 count(distinct b.users) users from
 
@@ -49,7 +51,8 @@ split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) not like 'RbA%'
 and split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) not like 'Valspar%' 
 and split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) 
 not like 'Renewal by%' and lower(split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1)) not like 'hover%'
-group by date_gap,org2")
+group by quarter_id,month_id,date_gap,org2
+")
 return(a)
 })
 
@@ -62,9 +65,28 @@ summary<-reactive({
 
 single_org<-reactive({
 	a<-data()
-	b<-data.table(subset(a,a$org2==input$orgs))
-	b$pct=round(100*b[,cum:=cumsum(users)]$cum/max(b$cum),2)
+	b<-data.table(ddply(subset(a,a$org2==input$orgs),.(date_gap),summarize,counts=sum(users)))
+	b$pct=round(100*b[,cum:=cumsum(counts)]$cum/max(b$cum),2)
 	b<-subset(b,is.na(date_gap)==FALSE)
+	return(b)
+})
+
+time_groups<-reactive({
+
+	a<-data()
+	
+	if(input$agg=='monthly')
+	{
+		b<-data.table(ddply(a,.(month_id,date_gap),summarize,counts=sum(users)))
+		b[,cum:=cumsum(counts),by=month_id]
+		b$pct=round(100*(b[,maxi:=max(cum),by=month_id]$cum/b$maxi),2)
+	}
+	else
+	{
+		b<-data.table(ddply(a,.(quarter_id,date_gap),summarize,counts=sum(users)))
+		b[,cum:=cumsum(counts),by=quarter_id]
+		b$pct=round(100*(b[,maxi:=max(cum),by=quarter_id]$cum/b$maxi),2)
+	}
 	return(b)
 })
 
@@ -97,6 +119,17 @@ output$usage<-renderChart({
         return(theGraph)
       
   })
+output$cohorts<-renderChart({
+	if(input$agg=='monthly'){
+		graph2<-hPlot(pct~date_gap,data=time_groups(),type='line',group='month_id')
+	}
+	else{
+		graph2<-hPlot(pct~date_gap,data=time_groups(),type='line',group='quarter_id')
+	}
+		graph2$addParams(dom='cohorts')
+		graph2$yAxis(title = list(text = 'Cum. % Users'),min=0)
+	return(graph2)
+	})
  
 })
 
