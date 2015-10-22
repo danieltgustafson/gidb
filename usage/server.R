@@ -51,6 +51,7 @@ split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) not like 'RbA%'
 and split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) not like 'Valspar%' 
 and split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1) 
 not like 'Renewal%' and lower(split_part(regexp_replace(b.org, '[^a-zA-Z0-9>]+','','g'),'>',1)) not like 'hover%'
+and b.happened_at>='2015-04-01'
 group by quarter_id,month_id,date_gap,org2
 ")
 return(a)
@@ -60,7 +61,7 @@ summary<-reactive({
 	a<-data()
 	b<-data.table(ddply(a,.(date_gap),summarize,counts=sum(users)))
 	b$pct=round(100*b[,cum:=cumsum(counts)]$cum/max(b$cum),2)
-	return(b)
+	return(subset(b,!is.na(date_gap)))
 })
 
 single_org<-reactive({
@@ -68,7 +69,7 @@ single_org<-reactive({
 	b<-data.table(ddply(subset(a,a$org2==input$orgs),.(date_gap),summarize,counts=sum(users)))
 	b$pct=round(100*b[,cum:=cumsum(counts)]$cum/max(b$cum),2)
 	b<-subset(b,is.na(date_gap)==FALSE)
-	return(b)
+	return(subset(b,!is.na(date_gap)))
 })
 
 time_groups<-reactive({
@@ -87,7 +88,7 @@ time_groups<-reactive({
 		b[,cum:=cumsum(counts),by=quarter_id]
 		b$pct=round(100*(b[,maxi:=max(cum),by=quarter_id]$cum/b$maxi),2)
 	}
-	return(b)
+	return(subset(b,!is.na(date_gap)))
 })
 
 output$ui_orgs<-renderUI({
@@ -100,17 +101,18 @@ output$test<-renderDataTable({
 	})
 output$usage<-renderChart({
       
-       	theGraph <- hPlot(pct~date_gap,data=summary(),type='line',name='All Pro Avg.')
+       #	theGraph <- hPlot(pct~date_gap,data=summary(),type='line',name='All Pro Avg.')
+		theGraph<-Highcharts$new()
 		theGraph$yAxis(title = list(text = 'Cum. % Users'),min=0)
-		#theGraph$series(
-		 #   data = toJSONArray2(summary()[,c('date_gap','pct'),with=FALSE],names = F, json = F),
-		  #  name = "All Pro Avg",
-		   # type = "line",
-		    #color= "#ca0707"
-		#)
+		theGraph$series(
+		 data = toJSONArray2(summary()[,c('date_gap','pct'),with=FALSE],names = F, json = F),
+		 name = "All Pro Avg",
+		 type = "line",
+		 color= "#ca0707"
+		)
 		theGraph$series(
 		   data = toJSONArray2(single_org()[,c('date_gap','pct'),with=FALSE],names = F, json = F),
-		   name = input$orgs,
+		   name = paste(input$orgs),
 		   type = "line"
 		)
         theGraph$addParams(width = 1000, height = 700,dom='usage')
