@@ -16,8 +16,13 @@ shinyUI(fluidPage(
   # Sidebar with a slider input for number of bins
   sidebarLayout(
     sidebarPanel(
+      conditionalPanel(condition="input.tabs=='First Use vs Time'",
       uiOutput('ui_orgs'),
       selectInput('agg','Select Quarterly or Monthly Cohorts',list('Monthly'='monthly','Quarterly'='quarterly'))
+      ),
+      conditionalPanel(condition="input.tabs=='Retention'",
+        selectInput('pro','Pro or Free Retention',list('Pro'='pro','Free'='free'))
+        )
     ),
     # Show a plot of the generated distribution
     mainPanel(
@@ -28,7 +33,11 @@ shinyUI(fluidPage(
           showOutput("usage",'highcharts'),
           h2("Monthly/Quarterly Cohorts"),
           showOutput("cohorts",'highcharts')
-    )
+    ),
+        tabPanel("Retention",
+          showOutput("retent",'highcharts')
+          #dataTableOutput('test')
+          )
         #,tabPanel("Retention",
           #radioButtons('table','Show Table or Graphic?',list("Table"='table',"Graphic"='graphic')),
           #conditionalPanel(condition="input.table=='graphic'",

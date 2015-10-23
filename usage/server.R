@@ -56,6 +56,56 @@ group by quarter_id,month_id,date_gap,org2
 ")
 return(a)
 })
+retention<-reactive({
+	a<-dbGetQuery(con,"
+		DROP SEQUENCE IF EXISTS serial;
+		CREATE SEQUENCE serial start 1;
+
+		SELECT a.diff,is_pro,b.reg_month,100*cast(count(distinct (
+		case when maxdiff>=diff then b.email else null end)) as float)/max(c.total_reg) reten_rate
+		FROM 
+			(
+				SELECT nextval('serial')-1 as diff 
+				FROM user_metrics limit 100) a
+			CROSS JOIN (
+				SELECT max(date(happened_at) - date(reg)) maxdiff,a.email,
+				date_part('year',min(reg))*100+date_part('month',min(reg)) as reg_month,is_pro
+				FROM(
+					SELECT min(happened_at) as reg, email 
+					FROM user_metrics 
+					GROUP by email) a 
+					JOIN user_metrics b ON a.email=b.email
+					JOIN 
+					( 
+					SELECT jsonb_extract_path_text(tags,'user_email') email, 
+					jsonb_extract_path_text(tags,'user_pro') is_pro
+					FROM metrics where name = 'user.created') pros on a.email=pros.email
+			GROUP BY  a.email,is_pro) b 
+			JOIN
+			(
+				SELECT date_part('year',reg)*100+date_part('month',reg) as reg_month,
+				count(distinct email) as total_reg 
+				FROM (
+					SELECT min(happened_at) reg, email
+					FROM user_metrics 
+					GROUP BY email) a
+				GROUP BY reg_month
+			) c ON b.reg_month=c.reg_month
+			where b.reg_month>=201504 
+			GROUP BY b.reg_month,is_pro,a.diff")
+return(a)
+})
+
+pro_reten<-reactive({
+	b<-subset(retention(),retention()$is_pro=='true')
+	b$reten_rate<-round(b$reten_rate,2)
+	return(b)
+	})
+free_reten<-reactive({
+	b<-subset(retention(),retention()$is_pro=='false')
+	b$reten_rate<-round(b$reten_rate,2)
+	return(b)
+	})
 
 summary<-reactive({
 	a<-data()
@@ -97,7 +147,12 @@ output$ui_orgs<-renderUI({
 })
 
 output$test<-renderDataTable({
-	single_org()[,c('date_gap','pct'),with=FALSE]
+	if(input$pro=='pro'){
+		pro_reten()
+	}
+	else{
+		free_reten()
+	}
 	})
 output$usage<-renderChart({
       
@@ -129,6 +184,17 @@ output$cohorts<-renderChart({
 		graph2<-hPlot(pct~date_gap,data=time_groups(),type='line',group='quarter_id')
 	}
 		graph2$addParams(dom='cohorts')
+		graph2$yAxis(title = list(text = 'Cum. % Users'),min=0)
+	return(graph2)
+	})
+output$retent<-renderChart({
+	if(input$pro=='pro'){
+		graph2<-hPlot(reten_rate~diff,data=pro_reten(),type='line',group='reg_month')
+	}
+	else{
+		graph2<-hPlot(reten_rate~diff,data=free_reten(),type='line',group='reg_month')
+	}
+		graph2$addParams(dom='retent')
 		graph2$yAxis(title = list(text = 'Cum. % Users'),min=0)
 	return(graph2)
 	})
