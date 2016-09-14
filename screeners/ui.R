@@ -34,9 +34,9 @@ shinyUI(fluidPage(
         dateInput('date',"Screen Date > : ",value='2014-01-01')
       ),
       conditionalPanel(condition="input.tabs=='Upload'",
-        fileInput('file1', 'Upload tracking file for JENNE'),
-        fileInput('file2', 'Upload tracking file for KIM'),
-        fileInput('file3', 'Upload tracking file for CHERYL'),
+        fileInput('file1', 'Upload tracking file for DAN'),
+        fileInput('file2', 'Upload tracking file for BOB'),
+        fileInput('file3', 'Upload tracking file for JANE'),
         actionButton("submit","Submit")
     )),
 
