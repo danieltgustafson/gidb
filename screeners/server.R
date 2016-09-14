@@ -66,13 +66,13 @@ output$day2<-renderChart({
 			    )
 			)
         theGraph$series(
-		    data = toJSONArray2(subset(screener_data(),screener_data()$screener=='Jenne')[,c('unix',input$lmeasure)],names = F, json = F),
-		    name = "Jenne",
+		    data = toJSONArray2(subset(screener_data(),screener_data()$screener=='Bob')[,c('unix',input$lmeasure)],names = F, json = F),
+		    name = "Bob",
 		    type = "spline",
 		    color="#137df6"
 		)
 		theGraph$series(
-		    data = toJSONArray2(subset(screener_data(),screener_data()$screener=='Jenne')[,c('unix',input$cmeasure)],names = F, json = F),
+		    data = toJSONArray2(subset(screener_data(),screener_data()$screener=='Bob')[,c('unix',input$cmeasure)],names = F, json = F),
 		    name = " ",
 		    type = "column",
 		     groupPadding=0,
@@ -80,13 +80,13 @@ output$day2<-renderChart({
 		    yAxis=1   
 		)
         theGraph$series(
-		    data =  toJSONArray2(subset(screener_data(),screener_data()$screener=='Cheryl')[,c('unix',input$lmeasure)],names = F, json = F),
-		    name = "Cheryl",
+		    data =  toJSONArray2(subset(screener_data(),screener_data()$screener=='Dan')[,c('unix',input$lmeasure)],names = F, json = F),
+		    name = "Dan",
 		    type = "spline",
 		    color= "#0ac507"
 		)
 		theGraph$series(
-		    data =  toJSONArray2(subset(screener_data(),screener_data()$screener=='Cheryl')[,c('unix',input$cmeasure)],names = F, json = F),
+		    data =  toJSONArray2(subset(screener_data(),screener_data()$screener=='Dan')[,c('unix',input$cmeasure)],names = F, json = F),
 		    name = " ",
 		    type = "column",
 		    groupPadding=0,
@@ -94,13 +94,13 @@ output$day2<-renderChart({
 		    color="#5ff95d"  
 		)
 		theGraph$series(
-		    data =  toJSONArray2(subset(screener_data(),screener_data()$screener=='Kim')[,c('unix',input$lmeasure)],names = F, json = F),
-		    name = "Kim",
+		    data =  toJSONArray2(subset(screener_data(),screener_data()$screener=='Jane')[,c('unix',input$lmeasure)],names = F, json = F),
+		    name = "Jane",
 		    type = "spline" ,
 		    color= "#ca0707"  
 		)
 		theGraph$series(
-		    data =  toJSONArray2(subset(screener_data(),screener_data()$screener=='Kim')[,c('unix',input$cmeasure)],names = F, json = F),
+		    data =  toJSONArray2(subset(screener_data(),screener_data()$screener=='Jane')[,c('unix',input$cmeasure)],names = F, json = F),
 		    name = " ",
 		    type = "column",
 		    groupPadding=0,
@@ -234,25 +234,25 @@ output$pie_kim<-renderChart({
 		return(a)
 })
 jenne1<-reactive({
-	a<-subset(screener_pats(),screener_pats()$screener_name =='Jenne')
+	a<-subset(screener_pats(),screener_pats()$screener_name =='Bob')
 	a<-ddply(a,.(screener_name),summarize,status=status1,value=counts/sum(counts))
 	return(a[order(a$value),])
 	})
 output$pie_jenne<-renderChart({
 		a <- Highcharts$new()
-		a$title(text = paste('Jenne'," Referrals"))
+		a$title(text = paste('Bob'," Referrals"))
 		a$data(x = jenne1()$status, y =jenne1()$value*100 , type = "pie", name = "Percent")
 		a$addParams(dom='pie_jenne')
 		return(a)
 })
 cheryl1<-reactive({
-	a<-subset(screener_pats(),screener_pats()$screener_name=='Cheryl')
+	a<-subset(screener_pats(),screener_pats()$screener_name=='Jane')
 	a<-ddply(a,.(screener_name),summarize,status=status1,value=counts/sum(counts))
 	return(a[order(a$value),])
 	})
 output$pie_cheryl<-renderChart({
 		a <- Highcharts$new()
-		a$title(text = paste('Cheryl'," Referrals"))
+		a$title(text = paste('Jane'," Referrals"))
 		a$data(x = cheryl1()$status, y =cheryl1()$value*100 , type = "pie", name = "Percent")
 		a$addParams(dom='pie_cheryl')
 		return(a)
