@@ -7,3 +7,5 @@ This project requires both R as well as a shiny-server.  The visualizations rely
 
 Almost all of the dashboards in this project require a connection to a MySQL instance and query data in real-time.  
 
+The USAGE app utilizes a Postgres instance rather than MySQL due to client requirements.
+
