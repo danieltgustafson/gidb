@@ -15,7 +15,7 @@ shinyServer(function(input, output) {
   
 
 
-con=dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
+con=dbConnect(MySQL(),username='',password='',host='localhost', port=3306)
   
   
  
