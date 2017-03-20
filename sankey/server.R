@@ -9,10 +9,10 @@ library(plyr)
 getConnection <- function(group) {
 
   if (!exists('.connection', where=.GlobalEnv)) {
-    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
+    .connection <<- dbConnect(MySQL(),username='',password='',host='localhost', port=3306)
   } else if (class(try(dbGetQuery(.connection, "SELECT 1"))) == "try-error") {
     dbDisconnect(.connection)
-    .connection <<- dbConnect(MySQL(),username='dgustafson',password='c3808v4m',host='localhost', port=3306)
+    .connection <<- dbConnect(MySQL(),username='',password='',host='localhost', port=3306)
   }
 
   return(.connection)
